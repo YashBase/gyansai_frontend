@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Gyansai design tokens */
+    --background: 0 0% 98%;       /* #FAFAFA */
+    --foreground: 0 0% 4%;        /* #0A0A0A */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 224 100% 33%;      /* International Klein Blue #002FA7 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 32%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 76% 57%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 145 50% 41%;
+    --warning: 41 76% 51%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 224 100% 33%;
+    --chart-1: 224 100% 33%;
+    --chart-2: 145 50% 41%;
+    --chart-3: 41 76% 51%;
+    --chart-4: 0 76% 57%;
+    --chart-5: 280 50% 50%;
+    --radius: 0.25rem;
+  }
+
+  .dark {
+    --background: 0 0% 2%;        /* #050505 */
+    --foreground: 0 0% 96%;
+    --card: 0 0% 7%;              /* #121212 */
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 224 100% 60%;      /* #3366FF */
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 80% 70%;
+    --destructive-foreground: 0 0% 5%;
+    --success: 145 50% 60%;
+    --warning: 41 80% 65%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 224 100% 60%;
+  }
+
+  * { @apply border-border; }
+
+  html, body, #root {
+    @apply bg-background text-foreground;
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, .heading {
+    font-family: 'Cabinet Grotesk', 'IBM Plex Sans', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .mono, code, pre {
+    font-family: 'JetBrains Mono', 'Menlo', monospace;
+  }
+
+  /* Selection */
+  ::selection {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+@layer components {
+  .overline {
+    @apply uppercase text-xs font-medium tracking-[0.2em] text-muted-foreground;
+  }
+
+  .grid-card {
+    @apply bg-card border border-border rounded-sm;
+  }
+
+  .brutalist-hover {
+    @apply transition-all duration-150;
+  }
+  .brutalist-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+  }
+
+  .math-bg {
+    background-image:
+      linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+  }
+
+  /* Question palette colors */
+  .palette-answered { @apply bg-[hsl(145_50%_41%)] text-white border-[hsl(145_50%_30%)]; }
+  .palette-review   { @apply bg-[hsl(41_76%_51%)] text-black border-[hsl(41_76%_40%)]; }
+  .palette-current  { @apply bg-primary text-primary-foreground border-primary; }
+  .palette-empty    { @apply bg-card text-foreground border-border; }
+  .palette-visited  { @apply bg-muted text-foreground border-border; }
+}
+
+@layer base {
+  [data-debug-wrapper="true"] { display: contents !important; }
+}
