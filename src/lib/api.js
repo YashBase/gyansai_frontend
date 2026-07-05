@@ -8,7 +8,7 @@ export function resolveApiBaseUrl(value) {
 }
 
 const configuredBackendUrl = resolveApiBaseUrl(process.env.REACT_APP_BACKEND_URL || "");
-const fallbackBackendUrl = typeof window !== "undefined" ? resolveApiBaseUrl("http://localhost:8080") : "/api";
+const fallbackBackendUrl = typeof window !== "undefined" ? resolveApiBaseUrl("https://gyansai-z7lo.vercel.app/") : "/api";
 export const API = configuredBackendUrl !== "/api" ? configuredBackendUrl : fallbackBackendUrl;
 
 export const PUBLIC_API_BASE = API.replace(/\/api$/, "");
