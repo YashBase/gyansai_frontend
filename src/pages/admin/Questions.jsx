@@ -632,16 +632,6 @@ if (closeAfterSave) {
                     <div className="space-y-2">
                       {(questionForm.options || []).map((opt, idx) => (
                         <div key={idx} className="flex items-center gap-2">
-                          <Input 
-                            placeholder={`Option ${idx + 1}`} 
-                            value={opt.text} 
-                            onChange={(e) => {
-                              const newOpts = [...questionForm.options];
-                              newOpts[idx].text = e.target.value;
-                              setQuestionForm({ ...questionForm, options: newOpts });
-                            }}
-                            className="rounded-sm"
-                          />
                           <Select value={opt.key} onValueChange={(v) => {
                             const newOpts = [...questionForm.options];
                             newOpts[idx].key = v;
