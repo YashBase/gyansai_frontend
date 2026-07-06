@@ -63,7 +63,7 @@ const blankFolder = () => ({
 
 export default function Questions() {
   const [activeTab, setActiveTab] = useState("content");
-  const fileInputRef = useRef(null);
+ 
   const titleRef = useRef(null);
   const [folders, setFolders] = useState(() => loadSectionCards());
   const [allQuestions, setAllQuestions] = useState([]);
