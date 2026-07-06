@@ -37,7 +37,10 @@ const QUESTION_TYPES = [
 
 const blankQuestion = () => ({
   title: "", description: "", image_url: "", subject: "Mathematics", chapter: "", topic: "", test_folder: "",
-  difficulty: "medium", type: "mcq_single", tags: [], options: [], correct_answer: null, explanation: "",
+  difficulty: "medium", type: "mcq_single", tags: [], options: [ { key: "A", text: "" },
+  { key: "B", text: "" },
+  { key: "C", text: "" },
+  { key: "D", text: "" },], correct_answer: null, explanation: "",
   marking_pattern: "positive_only", default_marks: 4.0, default_negative_marks: 0,
 });
 
