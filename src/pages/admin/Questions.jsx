@@ -356,13 +356,42 @@ export default function Questions() {
         : null;
       const previousIds = previousFolder?.question_ids || [];
 
+      // Build exam payload for API
+      const examPayload = {
+        name: folderForm.exam_name.trim(),
+        description: folderForm.description,
+        type: "mock",
+        exam_type: "mock",
+        class_level: folderForm.class_level,
+        exam_tag: folderForm.exam_tag,
+        duration_minutes: folderForm.duration_minutes,
+        passing_marks: folderForm.passing_marks,
+        allowed_tab_switches: folderForm.allowed_tab_switches,
+        instructions: folderForm.instructions,
+        is_published: folderForm.publish,
+        enable_webcam: folderForm.webcam,
+        randomize: folderForm.randomize,
+        question_ids: folderForm.selected_question_ids,
+        assigned_student_ids: folderForm.assigned_student_ids,
+        total_marks: folderForm.selected_question_ids.length * 4, // Estimate based on default 4 marks per question
+      };
+
+      // Create or update exam via API
+      let examId = folderForm.exam_id;
+      if (editingFolderId && examId) {
+        await api.put(`/exams/${examId}`, examPayload);
+      } else {
+        const { data } = await api.post("/exams", examPayload);
+        examId = data.id;
+      }
+
       const createdFolder = {
         folder_name: trimmedName,
         exam_name: folderForm.exam_name.trim(),
         description: folderForm.description,
         class_level: folderForm.class_level,
         exam_tag: folderForm.exam_tag,
-        exam_id: folderForm.exam_id || "",
+        exam_id: examId || "",
         duration_minutes: folderForm.duration_minutes,
         passing_marks: folderForm.passing_marks,
         allowed_tab_switches: folderForm.allowed_tab_switches,
@@ -399,6 +428,12 @@ export default function Questions() {
     try {
       const folderToDelete = folders.find((item) => item.folder_name === folderName);
       const folderQuestionIds = folderToDelete?.question_ids || [];
+      
+      // Delete exam from API if it has an exam_id
+      if (folderToDelete?.exam_id) {
+        await api.delete(`/exams/${folderToDelete.exam_id}`);
+      }
+      
       setFolders((prev) => prev.filter((item) => item.folder_name !== folderName));
       setAllQuestions((prev) =>
         prev.map((question) =>
