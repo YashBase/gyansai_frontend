@@ -62,6 +62,7 @@ const blankFolder = () => ({
 });
 
 export default function Questions() {
+  const [questionCount, setQuestionCount] = useState(0);
   const [activeTab, setActiveTab] = useState("content");
  
   const titleRef = useRef(null);
