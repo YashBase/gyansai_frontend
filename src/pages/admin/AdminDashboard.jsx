@@ -151,7 +151,7 @@ export default function AdminDashboard() {
           <div className="overline mb-3">Avg score (recent exams)</div>
           <div className="h-56">
             <ResponsiveContainer>
-              <BarChart data={d.score_chart}>
+              <BarChart data={d.exam_performance}>
                 <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
