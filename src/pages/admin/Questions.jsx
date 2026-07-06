@@ -62,6 +62,9 @@ const blankFolder = () => ({
 });
 
 export default function Questions() {
+  const [activeTab, setActiveTab] = useState("content");
+  const fileInputRef = useRef(null);
+  const titleRef = useRef(null);
   const [folders, setFolders] = useState(() => loadSectionCards());
   const [allQuestions, setAllQuestions] = useState([]);
   const [allStudents, setAllStudents] = useState([]);
@@ -221,7 +224,7 @@ export default function Questions() {
     if (files.length > 0) uploadImage(files[0]);
   };
 
-  const submitQuestion = async () => {
+  const submitQuestion = async (closeAfterSave = true) => {
     try {
       if (!questionForm.title.trim()) {
         toast.error("Question title is required");
@@ -245,11 +248,44 @@ export default function Questions() {
         toast.success("Question created");
       }
       
-      setOpenQuestion(false);
-      setEditingQuestionId(null);
-      setQuestionForm(blankQuestion());
-      setImagePreview(null);
-      await load();
+     await load();
+
+if (closeAfterSave) {
+
+    setOpenQuestion(false);
+    setEditingQuestionId(null);
+    setQuestionForm(blankQuestion());
+    setImagePreview(null);
+
+} else {
+
+    toast.success("Question saved. Ready for next question.");
+
+    setEditingQuestionId(null);
+
+    setQuestionForm({
+        ...blankQuestion(),
+
+        subject: questionForm.subject,
+        chapter: questionForm.chapter,
+        topic: questionForm.topic,
+        test_folder: questionForm.test_folder,
+
+        difficulty: questionForm.difficulty,
+
+        marking_pattern: questionForm.marking_pattern,
+
+        default_marks: questionForm.default_marks,
+        default_negative_marks:
+            questionForm.default_negative_marks
+    });
+
+    setImagePreview(null);
+
+      setTimeout(() => {
+        titleRef.current?.focus();
+    }, 100);
+}
     } catch (e) {
       console.error("Submit error", e);
       toast.error(e?.response?.data?.detail || "Failed to save question");
@@ -500,10 +536,25 @@ export default function Questions() {
       }}>
         <DialogContent className="rounded-sm max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingQuestionId ? "Edit Question" : "New Question"}</DialogTitle>
+           <DialogTitle>
+
+    {editingQuestionId
+        ? "Edit Question"
+        : "New Question"}
+
+    {!editingQuestionId && (
+        <div className="text-sm text-muted-foreground mt-1">
+            Questions Added : {questionCount}
+        </div>
+    )}
+
+</DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="content">
+          <Tabs
+    value={activeTab}
+    onValueChange={setActiveTab}
+>
             <TabsList>
               <TabsTrigger value="content">Content</TabsTrigger>
               <TabsTrigger value="options">Options</TabsTrigger>
@@ -514,7 +565,7 @@ export default function Questions() {
             <TabsContent value="content" className="space-y-3">
               <div>
                 <Label>Question Title *</Label>
-                <Textarea rows={2} value={questionForm.title} onChange={(e) => setQuestionForm({ ...questionForm, title: e.target.value })} placeholder="What is 2 + 2?" />
+                <Textarea  ref={titleRef} rows={2} value={questionForm.title} onChange={(e) => setQuestionForm({ ...questionForm, title: e.target.value })} placeholder="What is 2 + 2?" />
               </div>
 
            
@@ -745,10 +796,29 @@ export default function Questions() {
               </TabsContent>
             </Tabs>
 
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setOpenQuestion(false)}>Cancel</Button>
-              <Button onClick={submitQuestion}>Save Question</Button>
-            </DialogFooter>
+         <DialogFooter className="gap-2">
+
+    <Button
+        variant="outline"
+        onClick={() => setOpenQuestion(false)}
+    >
+        Cancel
+    </Button>
+
+    <Button
+        variant="secondary"
+        onClick={() => submitQuestion(false)}
+    >
+        Save & Next
+    </Button>
+
+    <Button
+        onClick={() => submitQuestion(true)}
+    >
+        Save & Close
+    </Button>
+
+</DialogFooter>
           </DialogContent>
         </Dialog>
 
