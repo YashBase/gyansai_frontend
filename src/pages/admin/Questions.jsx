@@ -18,6 +18,32 @@ const EXAM_TAGS = ["JEE Mains", "JEE Advanced", "MHT-CET", "NEET"];
 
 const DEFAULT_FOLDER_SECTIONS = [];
 
+const MARKING_PATTERNS = {
+  jee_main: {
+    label: "JEE Main",
+    marks: 4,
+    negative: 1,
+  },
+
+  jee_advanced: {
+    label: "JEE Advanced",
+    marks: 3,
+    negative: 1,
+  },
+
+  mhcet: {
+    label: "MHT-CET",
+    marks: 2,
+    negative: 0,
+  },
+
+  custom: {
+    label: "Custom",
+    marks: 4,
+    negative: 1,
+  },
+};
+
 const DIFFICULTIES = [
   { v: "easy", l: "Easy", color: "bg-green-100 text-green-800" },
   { v: "medium", l: "Medium", color: "bg-yellow-100 text-yellow-800" },
@@ -729,61 +755,46 @@ if (closeAfterSave) {
 
                
 
-                <div className="space-y-3">
-                  <Label>Marking Pattern</Label>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant={questionForm.marking_pattern === "positive_only" ? "default" : "outline"}
-                      onClick={() => setQuestionForm({ ...questionForm, marking_pattern: "positive_only" })}
-                      className="rounded-sm"
-                    >
-                      Positive only (+marks)
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={questionForm.marking_pattern === "custom" ? "default" : "outline"}
-                      onClick={() => setQuestionForm({ ...questionForm, marking_pattern: "custom" })}
-                      className="rounded-sm"
-                    >
-                      Custom (+/-)
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={questionForm.marking_pattern === "no_negative" ? "default" : "outline"}
-                      onClick={() => setQuestionForm({ ...questionForm, marking_pattern: "no_negative" })}
-                      className="rounded-sm"
-                    >
-                      No negative
-                    </Button>
-                  </div>
+     <Label>Marking Pattern</Label>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label>Default +marks</Label>
-                      <Input 
-                        type="number" 
-                        value={questionForm.default_marks} 
-                        onChange={(e) => setQuestionForm({ ...questionForm, default_marks: Number(e.target.value) })}
-                        className="rounded-sm mono"
-                      />
-                    </div>
+<Select
+    value={questionForm.marking_pattern}
+    onValueChange={(value) => {
 
-                    {questionForm.marking_pattern !== "no_negative" && (
-                      <div>
-                        <Label>Default -marks</Label>
-                        <Input 
-                          type="number" 
-                          value={questionForm.default_negative_marks} 
-                          onChange={(e) => setQuestionForm({ ...questionForm, default_negative_marks: Number(e.target.value) })}
-                          className="rounded-sm mono"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
+        const pattern = MARKING_PATTERNS[value];
+
+        setQuestionForm({
+            ...questionForm,
+
+            marking_pattern: value,
+
+            default_marks: pattern.marks,
+
+            default_negative_marks: pattern.negative,
+        });
+
+    }}
+>
+    <SelectTrigger className="rounded-sm">
+        <SelectValue />
+    </SelectTrigger>
+
+    <SelectContent>
+
+        {Object.entries(MARKING_PATTERNS).map(([key, value]) => (
+
+            <SelectItem
+                key={key}
+                value={key}
+            >
+                {value.label}
+            </SelectItem>
+
+        ))}
+
+    </SelectContent>
+
+</Select>
 
          <DialogFooter className="gap-2">
 
