@@ -207,6 +207,15 @@ export default function Questions() {
     const previousIds = previousFolder?.question_ids || [];
     const mergedIds = Array.from(new Set([...(previousIds || []), ...ids]));
 
+    // Save folder assignment to backend
+await Promise.all(
+    ids.map((id) =>
+        api.put(`/questions/${id}`, {
+            test_folder: folderName,
+        })
+    )
+);
+
     setFolders((prev) => prev.map((folder) => {
       if (folder.folder_name !== folderName) return folder;
       return { ...folder, question_ids: mergedIds };
@@ -221,6 +230,10 @@ export default function Questions() {
     const previousFolder = folders.find((folder) => folder.folder_name === folderName);
     const previousIds = previousFolder?.question_ids || [];
     const nextIds = previousIds.filter((id) => id !== questionId);
+
+    await api.put(`/questions/${questionId}`, {
+    test_folder: "",
+});
 
     setFolders((prev) => prev.map((folder) => {
       if (folder.folder_name !== folderName) return folder;
