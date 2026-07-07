@@ -838,7 +838,7 @@ if (closeAfterSave) {
                       </div>
                     )}
                   </div>
-                </div>
+              
               </TabsContent>
             </Tabs>
 
