@@ -18,6 +18,7 @@ const EXAM_TAGS = ["JEE Mains", "JEE Advanced", "MHT-CET", "NEET"];
 
 const DEFAULT_FOLDER_SECTIONS = [];
 
+
 const MARKING_PATTERNS = {
   jee_main: {
     label: "JEE Main",
@@ -572,6 +573,11 @@ if (closeAfterSave) {
         ? "Edit Question"
         : "New Question"}
 
+    {!editingQuestionId && (
+        <div className="text-sm text-muted-foreground mt-1">
+            Questions Added : {questionCount}
+        </div>
+    )}
 
 </DialogTitle>
           </DialogHeader>
@@ -589,7 +595,7 @@ if (closeAfterSave) {
             {/* Content Tab */}
             <TabsContent value="content" className="space-y-3">
               <div>
-                <Label>Question Title </Label>
+                <Label>Question Title *</Label>
                 <Textarea  ref={titleRef} rows={2} value={questionForm.title} onChange={(e) => setQuestionForm({ ...questionForm, title: e.target.value })} placeholder="What is 2 + 2?" />
               </div>
 
@@ -755,7 +761,7 @@ if (closeAfterSave) {
 
                
 
-     <Label>Marking Pattern</Label>
+             <Label>Marking Pattern</Label>
 
 <Select
     value={questionForm.marking_pattern}
@@ -795,6 +801,44 @@ if (closeAfterSave) {
     </SelectContent>
 
 </Select>
+             
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Default +marks</Label>
+                   <Input
+    type="number"
+    disabled={questionForm.marking_pattern !== "custom"}
+    value={questionForm.default_marks}
+    onChange={(e)=>
+        setQuestionForm({
+            ...questionForm,
+            default_marks:Number(e.target.value)
+        })
+    }
+/>
+                    </div>
+
+                    {questionForm.marking_pattern !== "no_negative" && (
+                      <div>
+                        <Label>Default -marks</Label>
+                  <Input
+    type="number"
+    disabled={questionForm.marking_pattern !== "custom"}
+    value={questionForm.default_marks}
+    onChange={(e)=>
+        setQuestionForm({
+            ...questionForm,
+            default_marks:Number(e.target.value)
+        })
+    }
+/>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
 
          <DialogFooter className="gap-2">
 
@@ -844,7 +888,7 @@ if (closeAfterSave) {
           <Tabs defaultValue="folder-info">
             <TabsList>
               <TabsTrigger value="folder-info">Folder Info</TabsTrigger>
-            
+      
             </TabsList>
 
             {/* Folder Info Tab */}
@@ -979,7 +1023,108 @@ if (closeAfterSave) {
               </div>
             </TabsContent>
 
+            {/* Questions Tab */}
+            <TabsContent value="questions" className="space-y-3">
+              <div className="space-y-3">
+                <div className="text-xs text-muted-foreground">
+                  Empty folders are allowed. You can create a category first and add existing questions later.
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Search question text / tags"
+                      value={questionSearch}
+                      onChange={(e) => setQuestionSearch(e.target.value)}
+                      className="rounded-sm h-9"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setFolderForm({
+                        ...folderForm,
+                        selected_question_ids: dialogQuestions.map((q) => q.id),
+                      });
+                    }}
+                  >
+                    Select all visible
+                  </Button>
+                </div>
 
+                <div className="max-h-[400px] overflow-y-auto border border-border rounded-sm">
+                    {dialogQuestions.length === 0 ? (
+                      <div className="p-6 text-center text-sm text-muted-foreground">
+                        No questions found
+                      </div>
+                    ) : (
+                      <>
+                        {dialogQuestions.map((q) => (
+                          <label
+                            key={q.id}
+                            className="flex gap-3 items-start p-3 border-b border-border last:border-0 hover:bg-muted/40 cursor-pointer"
+                          >
+                            <Checkbox
+                              checked={folderForm.selected_question_ids.includes(q.id)}
+                              onCheckedChange={(c) => {
+                                if (c) {
+                                  setFolderForm({
+                                    ...folderForm,
+                                    selected_question_ids: [...folderForm.selected_question_ids, q.id],
+                                  });
+                                } else {
+                                  setFolderForm({
+                                    ...folderForm,
+                                    selected_question_ids: folderForm.selected_question_ids.filter(
+                                      (id) => id !== q.id
+                                    ),
+                                  });
+                                }
+                              }}
+                              data-testid={`q-check-${q.id}`}
+                              className="mt-1"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium line-clamp-2">{q.title}</div>
+                              <div className="flex flex-wrap gap-2 mt-1.5">
+                                <Badge variant="outline" className="text-[10px] rounded-sm">
+                                  {q.subject}
+                                </Badge>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[10px] rounded-sm ${
+                                    q.difficulty === "easy"
+                                      ? "bg-green-100 text-green-800"
+                                      : q.difficulty === "medium"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {q.difficulty}
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground mono">
+                                  {q.chapter && `${q.chapter} `}
+                                  +{q.default_marks || q.marks}/{-(q.default_negative_marks || q.negative_marks || 0)}
+                                </span>
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </>
+                    )}
+                  </div>
+
+                  <label className="flex items-start gap-2 p-3 border border-border rounded-sm cursor-pointer">
+                    <Checkbox
+                      checked={folderForm.tag_questions_to_folder}
+                      onCheckedChange={(c) => setFolderForm({ ...folderForm, tag_questions_to_folder: c })}
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      Also tag selected questions with this folder name (🏷 badge will appear on each)
+                    </div>
+                  </label>
+                </div>
+              </TabsContent>
 
               {/* Students Tab */}
               <TabsContent value="students" className="space-y-3">
