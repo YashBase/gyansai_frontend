@@ -68,7 +68,9 @@ const blankQuestion = () => ({
   { key: "B", text: "" },
   { key: "C", text: "" },
   { key: "D", text: "" },], correct_answer: null, explanation: "",
-  marking_pattern: "positive_only", default_marks: 4.0, default_negative_marks: 0,
+  marking_pattern: "jee_main",
+default_marks: 4,
+default_negative_marks: 1,
 });
 
 const blankFolder = () => ({
@@ -809,7 +811,7 @@ if (closeAfterSave) {
                    <Input
     type="number"
     disabled={questionForm.marking_pattern !== "custom"}
-    value={questionForm.default_marks}
+    value={questionForm.default_positive_marks}
     onChange={(e)=>
         setQuestionForm({
             ...questionForm,
@@ -819,13 +821,13 @@ if (closeAfterSave) {
 />
                     </div>
 
-                    {questionForm.marking_pattern !== "no_negative" && (
+{questionForm.marking_pattern !== "mhcet" && (
                       <div>
                         <Label>Default -marks</Label>
                   <Input
     type="number"
     disabled={questionForm.marking_pattern !== "custom"}
-    value={questionForm.default_marks}
+    value={questionForm.default_negative_marks}
     onChange={(e)=>
         setQuestionForm({
             ...questionForm,
