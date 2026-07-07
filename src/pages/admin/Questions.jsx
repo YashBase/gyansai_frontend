@@ -546,11 +546,6 @@ if (closeAfterSave) {
         ? "Edit Question"
         : "New Question"}
 
-    {!editingQuestionId && (
-        <div className="text-sm text-muted-foreground mt-1">
-            Questions Added : {questionCount}
-        </div>
-    )}
 
 </DialogTitle>
           </DialogHeader>
@@ -568,7 +563,7 @@ if (closeAfterSave) {
             {/* Content Tab */}
             <TabsContent value="content" className="space-y-3">
               <div>
-                <Label>Question Title *</Label>
+                <Label>Question Title </Label>
                 <Textarea  ref={titleRef} rows={2} value={questionForm.title} onChange={(e) => setQuestionForm({ ...questionForm, title: e.target.value })} placeholder="What is 2 + 2?" />
               </div>
 
@@ -838,8 +833,7 @@ if (closeAfterSave) {
           <Tabs defaultValue="folder-info">
             <TabsList>
               <TabsTrigger value="folder-info">Folder Info</TabsTrigger>
-              <TabsTrigger value="questions">Questions ({folderForm.selected_question_ids.length})</TabsTrigger>
-              <TabsTrigger value="students">Students ({folderForm.assigned_student_ids.length})</TabsTrigger>
+            
             </TabsList>
 
             {/* Folder Info Tab */}
