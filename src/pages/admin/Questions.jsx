@@ -769,7 +769,7 @@ if (closeAfterSave) {
     value={questionForm.marking_pattern}
     onValueChange={(value) => {
 
-        const pattern = MARKING_PATTERNS[value];
+        const pattern = MARKING_PATTERNS[value] || MARKING_PATTERNS.jee_main;
 
         setQuestionForm({
             ...questionForm,
@@ -811,7 +811,7 @@ if (closeAfterSave) {
                    <Input
     type="number"
     disabled={questionForm.marking_pattern !== "custom"}
-    value={questionForm.default_positive_marks}
+    value={questionForm.default_marks}
     onChange={(e)=>
         setQuestionForm({
             ...questionForm,
@@ -831,7 +831,7 @@ if (closeAfterSave) {
     onChange={(e)=>
         setQuestionForm({
             ...questionForm,
-            default_marks:Number(e.target.value)
+            default_negative_marks:Number(e.target.value)
         })
     }
 />
