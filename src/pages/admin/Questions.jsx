@@ -207,19 +207,9 @@ export default function Questions() {
     const previousIds = previousFolder?.question_ids || [];
     const mergedIds = Array.from(new Set([...(previousIds || []), ...ids]));
 
-    // Save folder assignment to backend
-await Promise.all(
-    ids.map((id) =>
-        api.put(`/questions/${id}`, {
-            test_folder: folderName,
-        })
-    )
-);
 
-    setFolders((prev) => prev.map((folder) => {
-      if (folder.folder_name !== folderName) return folder;
-      return { ...folder, question_ids: mergedIds };
-    }));
+
+ 
 
     syncFolderQuestionAssignments(folderName, mergedIds, previousIds);
     setFolderQuestionSelection((prev) => ({ ...prev, [folderName]: [] }));
