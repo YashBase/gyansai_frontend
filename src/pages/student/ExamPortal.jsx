@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { normalizeQuestionOptions } from "@/lib/questionOptions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -550,7 +551,7 @@ if (!proctorReady) {
               <div className="mt-6">
                 {q.type === "mcq_single" && (
                   <div className="space-y-2">
-                    {(q.options || []).map((o) => {
+                    {normalizeQuestionOptions(q.options).map((o) => {
                       const selected = (answers[q.id] && answers[q.id].answer) === o.key;
                       return (
                         <label key={o.key} className={`flex gap-3 items-start p-3 border rounded-sm cursor-pointer transition-colors ${selected ? "border-primary bg-primary/5" : "border-border hover:bg-muted/30"}`}>
@@ -563,7 +564,7 @@ if (!proctorReady) {
                 )}
                 {q.type === "mcq_multi" && (
                   <div className="space-y-2">
-                    {(q.options || []).map((o) => {
+                    {normalizeQuestionOptions(q.options).map((o) => {
                       const cur = (answers[q.id] && answers[q.id].answer) || [];
                       const selected = Array.isArray(cur) && cur.includes(o.key);
                       return (
