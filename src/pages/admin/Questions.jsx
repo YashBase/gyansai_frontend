@@ -197,7 +197,7 @@ export default function Questions() {
   };
 
   const addQuestionsToFolder = async (folderName) => {
-    const ids = folderQuestionSelection[folderName] || [];
+    const ids = (folderQuestionSelection[folderName] || []).filter(Boolean);
     if (!ids.length) {
       toast.info("Select at least one unassigned question to add");
       return;
@@ -207,13 +207,29 @@ export default function Questions() {
     const previousIds = previousFolder?.question_ids || [];
     const mergedIds = Array.from(new Set([...(previousIds || []), ...ids]));
 
+    try {
+      await Promise.all(ids.map(async (questionId) => {
+        const question = allQuestions.find((item) => item.id === questionId);
+        if (!question) return;
+        await api.put(`/questions/${questionId}`, { ...question, test_folder: folderName });
+      }));
 
+      setFolders((prev) => prev.map((folder) => {
+        if (folder.folder_name !== folderName) return folder;
+        return {
+          ...folder,
+          question_ids: mergedIds,
+          question_count: mergedIds.length,
+        };
+      }));
 
- 
-
-    syncFolderQuestionAssignments(folderName, mergedIds, previousIds);
-    setFolderQuestionSelection((prev) => ({ ...prev, [folderName]: [] }));
-    toast.success(`Added ${ids.length} question(s) to ${folderName}`);
+      syncFolderQuestionAssignments(folderName, mergedIds, previousIds);
+      setFolderQuestionSelection((prev) => ({ ...prev, [folderName]: [] }));
+      toast.success(`Added ${ids.length} question(s) to ${folderName}`);
+    } catch (e) {
+      console.error("Add questions to folder failed", e);
+      toast.error(e?.response?.data?.detail || "Failed to add questions to folder");
+    }
   };
 
   const removeQuestionFromFolder = async (folderName, questionId) => {
@@ -221,19 +237,27 @@ export default function Questions() {
     const previousIds = previousFolder?.question_ids || [];
     const nextIds = previousIds.filter((id) => id !== questionId);
 
-    await api.put(`/questions/${questionId}`, {
-    test_folder: "",
-});
+    try {
+      const question = allQuestions.find((item) => item.id === questionId);
+      await api.put(`/questions/${questionId}`, {
+        ...(question || {}),
+        test_folder: "",
+      });
 
-    setFolders((prev) => prev.map((folder) => {
-      if (folder.folder_name !== folderName) return folder;
-      return {
-        ...folder,
-        question_ids: nextIds,
-      };
-    }));
-    syncFolderQuestionAssignments(folderName, nextIds, previousIds);
-    toast.success("Question moved to unassigned");
+      setFolders((prev) => prev.map((folder) => {
+        if (folder.folder_name !== folderName) return folder;
+        return {
+          ...folder,
+          question_ids: nextIds,
+          question_count: nextIds.length,
+        };
+      }));
+      syncFolderQuestionAssignments(folderName, nextIds, previousIds);
+      toast.success("Question moved to unassigned");
+    } catch (e) {
+      console.error("Remove question from folder failed", e);
+      toast.error(e?.response?.data?.detail || "Failed to move question to unassigned");
+    }
   };
 
   // ====== QUESTION FUNCTIONS ======
