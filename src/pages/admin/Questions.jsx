@@ -273,7 +273,7 @@ export default function Questions() {
 
       const payload = {
         ...questionForm,
-        options: questionForm.options.filter(o => o.text),
+        options: (questionForm.options || []).filter((o) => (o?.text || "").trim()),
       };
 
       if (editingQuestionId) {
@@ -663,10 +663,10 @@ if (closeAfterSave) {
                     <Label>Options</Label>
                     <div className="space-y-2">
                       {(questionForm.options || []).map((opt, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
+                        <div key={`${opt.key}-${idx}`} className="flex items-center gap-2">
                           <Select value={opt.key} onValueChange={(v) => {
                             const newOpts = [...questionForm.options];
-                            newOpts[idx].key = v;
+                            newOpts[idx] = { ...newOpts[idx], key: v };
                             setQuestionForm({ ...questionForm, options: newOpts });
                           }}>
                             <SelectTrigger className="rounded-sm w-20">
@@ -676,6 +676,16 @@ if (closeAfterSave) {
                               {["A", "B", "C", "D", "E"].map((k) => <SelectItem key={k} value={k}>{k}</SelectItem>)}
                             </SelectContent>
                           </Select>
+                          <Input
+                            value={opt.text || ""}
+                            onChange={(e) => {
+                              const newOpts = [...questionForm.options];
+                              newOpts[idx] = { ...newOpts[idx], text: e.target.value };
+                              setQuestionForm({ ...questionForm, options: newOpts });
+                            }}
+                            placeholder={`Option ${opt.key}`}
+                            className="rounded-sm flex-1"
+                          />
                           <Button 
                             size="sm" 
                             variant="ghost" 
