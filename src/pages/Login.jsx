@@ -29,7 +29,22 @@ export default function Login() {
       if (next && next.startsWith("/")) { nav(next); return; }
       nav(kind === "admin" ? "/admin" : "/app");
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Login failed");
+      const data = e?.response?.data;
+      let msg = "Login failed";
+      try {
+        if (data) {
+          if (typeof data.detail === "string") {
+            msg = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            msg = data.detail.map((it) => it.msg || JSON.stringify(it)).join("; ");
+          } else if (data.message) {
+            msg = data.message;
+          }
+        }
+      } catch (_err) {
+        // fall back to default message
+      }
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
