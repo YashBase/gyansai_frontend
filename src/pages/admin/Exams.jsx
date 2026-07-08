@@ -58,6 +58,12 @@ export default function Exams() {
   const [form, setForm] = useState(blank());
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [analytics, setAnalytics] = useState(null);
+  const [resourceForm, setResourceForm] = useState({
+    answer_key_url: "",
+    detailed_solution_url: "",
+    show_answer_key_to_students: false,
+    show_detailed_solutions_to_students: false,
+  });
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterQuestionFolder, setFilterQuestionFolder] = useState("all");
   const [studentSearch, setStudentSearch] = useState("");
@@ -139,7 +145,27 @@ export default function Exams() {
   const showAnalytics = async (e) => {
     const { data } = await api.get(`/exams/${e.id}/analytics`);
     setAnalytics({ ...data, exam: e });
+    setResourceForm({
+      answer_key_url: e.answer_key_url || data.answer_key_url || "",
+      detailed_solution_url: e.detailed_solution_url || data.detailed_solution_url || "",
+      show_answer_key_to_students: Boolean(e.show_answer_key_to_students ?? data.show_answer_key_to_students),
+      show_detailed_solutions_to_students: Boolean(e.show_detailed_solutions_to_students ?? data.show_detailed_solutions_to_students),
+    });
     setAnalyticsOpen(true);
+  };
+
+  const saveResources = async () => {
+    if (!analytics?.exam?.id) return;
+    try {
+      const payload = { ...analytics.exam, ...resourceForm };
+      const { data } = await api.put(`/exams/${analytics.exam.id}`, payload);
+      setRows((prev) => prev.map((row) => row.id === data.id ? data : row));
+      setAnalytics((prev) => prev ? { ...prev, ...resourceForm, exam: data } : prev);
+      toast.success("Resource links saved");
+    } catch (err) {
+      console.error("Save resource links error", err);
+      toast.error(err?.response?.data?.detail || "Could not save resource links");
+    }
   };
 
   const togglePub = async (e) => {
@@ -551,24 +577,55 @@ export default function Exams() {
       </div>
 
       <Dialog open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
-        <DialogContent className="rounded-sm">
+        <DialogContent className="rounded-sm max-w-2xl">
           <DialogHeader><DialogTitle>Analytics — {analytics?.exam?.name}</DialogTitle></DialogHeader>
           {analytics && (
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                ["Total attempts", analytics.count],
-                ["Highest", analytics.highest],
-                ["Lowest", analytics.lowest],
-                ["Average", analytics.avg],
-                ["Pass %", `${analytics.pass_pct}%`],
-              ].map(([k, v]) => (
-                <div key={k} className="grid-card p-3"><div className="overline">{k}</div><div className="mono text-xl font-bold mt-1">{v}</div></div>
-              ))}
-              <div className="col-span-2 grid-card p-3">
-                <div className="overline mb-2">Subject avg score</div>
-                {Object.entries(analytics.subject_avg || {}).map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-sm border-b border-border last:border-0 py-1.5"><span>{k}</span><span className="mono">{v}</span></div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  ["Total attempts", analytics.count],
+                  ["Highest", analytics.highest],
+                  ["Lowest", analytics.lowest],
+                  ["Average", analytics.avg],
+                  ["Pass %", `${analytics.pass_pct}%`],
+                ].map(([k, v]) => (
+                  <div key={k} className="grid-card p-3"><div className="overline">{k}</div><div className="mono text-xl font-bold mt-1">{v}</div></div>
                 ))}
+                <div className="col-span-2 grid-card p-3">
+                  <div className="overline mb-2">Subject avg score</div>
+                  {Object.entries(analytics.subject_avg || {}).map(([k, v]) => (
+                    <div key={k} className="flex justify-between text-sm border-b border-border last:border-0 py-1.5"><span>{k}</span><span className="mono">{v}</span></div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid-card p-3 space-y-3">
+                <div className="overline">Student resources</div>
+                <div>
+                  <Label>Answer key link</Label>
+                  <Input value={resourceForm.answer_key_url} onChange={(e) => setResourceForm({ ...resourceForm, answer_key_url: e.target.value })} placeholder="https://drive.google.com/..." />
+                </div>
+                <div>
+                  <Label>Detailed solutions link</Label>
+                  <Input value={resourceForm.detailed_solution_url} onChange={(e) => setResourceForm({ ...resourceForm, detailed_solution_url: e.target.value })} placeholder="https://drive.google.com/..." />
+                </div>
+                <div className="flex items-center justify-between rounded-sm border border-border p-3">
+                  <div>
+                    <div className="font-medium text-sm">Show answer key to students</div>
+                    <div className="text-xs text-muted-foreground">Makes the link visible on the student result page.</div>
+                  </div>
+                  <Switch checked={resourceForm.show_answer_key_to_students} onCheckedChange={(checked) => setResourceForm({ ...resourceForm, show_answer_key_to_students: checked })} />
+                </div>
+                <div className="flex items-center justify-between rounded-sm border border-border p-3">
+                  <div>
+                    <div className="font-medium text-sm">Show detailed solutions to students</div>
+                    <div className="text-xs text-muted-foreground">Makes the solutions link visible on the student result page.</div>
+                  </div>
+                  <Switch checked={resourceForm.show_detailed_solutions_to_students} onCheckedChange={(checked) => setResourceForm({ ...resourceForm, show_detailed_solutions_to_students: checked })} />
+                </div>
+                <div className="flex justify-end">
+                  <Button onClick={saveResources} data-testid="save-resource-links"><Save className="w-4 h-4 mr-1" />Save links</Button>
+                </div>
               </div>
             </div>
           )}
