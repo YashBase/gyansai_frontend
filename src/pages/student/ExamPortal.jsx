@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { normalizeQuestionOptions } from "@/lib/questionOptions";
+import { normalizeAnswerValue, normalizeQuestionOptions } from "@/lib/questionOptions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -345,9 +345,10 @@ export default function ExamPortal() {
   };
 
   const setAnswerFor = async (q, value, status = "answered") => {
-    const next = { ...answers, [q.id]: { answer: value, status } };
+    const normalizedValue = normalizeAnswerValue(q.type, value);
+    const next = { ...answers, [q.id]: { answer: normalizedValue, status } };
     setAnswers(next);
-    api.post("/exams/save", { attempt_id: attemptId, question_id: q.id, answer: value, status }).catch(() => {});
+    api.post("/exams/save", { attempt_id: attemptId, question_id: q.id, answer: normalizedValue, status }).catch(() => {});
   };
 
   const submitFinal = async (reason) => {
